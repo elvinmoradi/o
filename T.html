@@ -135,11 +135,15 @@ footer{text-align:center;color:#666;font-size:11px;padding:5px 0 25px}
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.45.4/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const SUPABASE_URL = "https://umdjtsbvecdyzmppxhzb.supabase.co";
-const SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_KEY_HERE"; // Settings > API > anon public key
+const SUPABASE_ANON_KEY = "sb_publishable_gE0AJD9WYVlmcwfcyk8SMA_oqOUHonA"; // Settings > API > anon public key
 
+if(typeof supabase==="undefined"){
+  document.getElementById("days").innerHTML='<div class="empty" style="color:#ff8b8b;text-align:center;padding:20px">⚠️ اتصال به سرویس برقرار نشد. اگه بدون VPN هستی، VPN رو روشن کن و صفحه رو رفرش کن.</div>';
+  throw new Error("supabase-js failed to load");
+}
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const daysEl=document.getElementById("days");
