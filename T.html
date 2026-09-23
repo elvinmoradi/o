@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>رزرو تبلیغات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Estedad:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,#3a1b04 0,#15100b 35%,#080808 100%);color:#fff;font-family:'Estedad',Tahoma,Arial,sans-serif}
+.wrap{max-width:720px;margin:auto;padding:15px}
+.hero{background:linear-gradient(135deg,#ff9b00,#ff4d00);border-radius:26px;padding:28px 18px;text-align:center;box-shadow:0 15px 40px #0008;margin-bottom:16px;position:relative;overflow:hidden;animation:heroIn .6s ease}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 0%,#fff5,transparent 60%);pointer-events:none}
+.hero h1{margin:0 0 8px;font-size:29px}.hero p{margin:0;font-size:13px;opacity:.92}
+.card{background:#171717;border:1px solid #303030;border-radius:21px;padding:18px;margin-bottom:15px;box-shadow:0 8px 28px #0006;animation:cardIn .5s ease both}
+.card:nth-of-type(2){animation-delay:.05s}.card:nth-of-type(3){animation-delay:.1s}.card:nth-of-type(4){animation-delay:.15s}
+.title{color:#ff951c;font-weight:bold;font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.info{color:#bbb;font-size:13px;line-height:2}
+.price{background:#21170d;border:1px solid #70400b;border-radius:16px;padding:15px;margin-top:10px}
+.price strong{color:#ff9b35;font-size:18px}
+.code{direction:ltr;text-align:center;background:#0b0b0b;border-radius:10px;padding:10px;margin-top:8px;word-break:break-all}
+.copy{width:100%;margin-top:8px;padding:10px;border:1px solid #ff7900;border-radius:10px;background:transparent;color:#ff9210;font-weight:bold;transition:.15s;cursor:pointer}
+.copy:active{transform:scale(.97);background:#ff79001a}
+.days{display:flex;flex-direction:column;gap:9px}
+.day{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#101010;border:1px solid #333;border-radius:15px;padding:14px;cursor:pointer;transition:.2s}
+.day:hover:not(.disabled){border-color:#ff8500;background:#1c1208;transform:translateY(-1px)}
+.day.selected{border-color:#ff8500;background:#24170b;box-shadow:0 0 0 1px #ff8500 inset}
+.day.disabled{cursor:not-allowed;opacity:.85}
+.dayname{font-weight:bold;margin-bottom:5px}.date{font-size:11px;color:#777}
+.badge{font-size:11px;padding:7px 10px;border-radius:20px;white-space:nowrap}
+.free{background:#12351d;color:#8aff9c}.waiting{background:#3b2c0d;color:#ffd46b}.booked{background:#3b1111;color:#ff8b8b}
+.badge.free::before{content:"● ";animation:pulse 1.6s infinite}
+label{display:block;color:#ddd;font-size:13px;margin:0 0 6px}
+input,select{width:100%;padding:14px;margin:0 0 14px;background:#0d0d0d;border:1px solid #393939;border-radius:12px;color:#fff;font-family:inherit;outline:none;transition:.15s}
+input:focus,select:focus{border-color:#ff8500;box-shadow:0 0 0 3px #ff85001a}
+input[type=file]{padding:10px}
+.notice{background:#21180d;border:1px solid #62400d;border-radius:13px;padding:13px;color:#ccc;font-size:12px;line-height:1.9;margin-bottom:14px}
+.mainbtn{width:100%;padding:15px;border:0;border-radius:14px;background:linear-gradient(135deg,#ff9500,#ff5100);color:#fff;font-size:15px;font-weight:bold;cursor:pointer;transition:.15s}
+.mainbtn:active{transform:scale(.98)}
+.mainbtn:disabled{opacity:.6;cursor:not-allowed}
+.support{display:block;text-align:center;text-decoration:none;color:#ff9200;border:1px solid #ff7900;background:#121212;padding:14px;border-radius:13px;font-weight:bold;transition:.15s}
+.support:active{transform:scale(.98)}
+.selectedInfo{display:none;background:#132313;border:1px solid #345d34;color:#aaffb0;border-radius:12px;padding:11px;margin:-4px 0 14px;font-size:12px;animation:cardIn .3s ease}
+.weekNotice{background:#21180d;border:1px solid #62400d;color:#ffcf8a;border-radius:12px;padding:11px;margin-bottom:12px;font-size:12px;animation:cardIn .3s ease}
+.skeleton{background:#161616;border:1px solid #2a2a2a;border-radius:15px;height:58px;position:relative;overflow:hidden}
+.skeleton::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#ffffff10,transparent);animation:shimmer 1.3s infinite}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#1c1c1c;border:1px solid #ff8500;color:#ffd8ad;padding:12px 20px;border-radius:12px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:50;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{text-align:center;color:#666;font-size:11px;padding:5px 0 25px}
+@keyframes heroIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+@media(max-width:500px){.hero h1{font-size:24px}.card{padding:15px}.day{padding:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section class="hero">
+<h1>🟠 رزرو تبلیغات</h1>
+<p>انتخاب نوبت، پرداخت و ارسال رسید</p>
+</section>
+
+<section class="card">
+<div class="title">📢 جزئیات تبلیغات</div>
+<div class="info">
+تبلیغات به صورت <b style="color:#ff9a2e">دائمی</b> انجام می‌شود.
+<br>پس از ارسال رسید، درخواست شما توسط مدیریت بررسی خواهد شد.
+</div>
+
+<div class="price">
+<strong>🪙 ۱۰K سکه</strong>
+<div class="info">شناسه جهت پرداخت:</div>
+<div class="code">sjlmfuxlsh</div>
+<button class="copy" onclick="copyText('sjlmfuxlsh')">📋 کپی شناسه</button>
+</div>
+
+<div class="price">
+<strong>💵 ۹۰٬۰۰۰ تومان</strong>
+<div class="info">شماره کارت جهت پرداخت:</div>
+<div class="code">6219861966504929</div>
+<button class="copy" onclick="copyText('6219861966504929')">📋 کپی شماره کارت</button>
+</div>
+</section>
+
+<section class="card">
+<div class="title">📅 وضعیت روزها</div>
+<div id="weekNotice" class="weekNotice" style="display:none">📌 این هفته تکمیل است — روزهای زیر برای هفته بعد هستند</div>
+<div class="days" id="days">
+<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+</div>
+</section>
+
+<section class="card">
+<div class="title">👤 اطلاعات رزرو</div>
+
+<div id="selectedInfo" class="selectedInfo"></div>
+
+<label>نام</label>
+<input id="name" type="text" placeholder="⚚𝕞𝕒𝕝𝕖𝕜⚚">
+
+<label>آیدی روبیکا</label>
+<input id="rubika" type="text" placeholder="@example">
+
+<label>روش پرداخت</label>
+<select id="payment">
+<option value="coins">🪙 ۱۰K سکه</option>
+<option value="cash">💵 ۹۰٬۰۰۰ تومان</option>
+</select>
+
+<label>تصویر رسید پرداخت</label>
+<input id="receipt" type="file" accept="image/jpeg,image/png,image/webp">
+
+<div class="notice">
+⚠️ پس از ثبت درخواست، روز انتخابی در وضعیت
+<b style="color:#ffd46b">«در انتظار تأیید»</b>
+قرار می‌گیرد و تا تصمیم مدیریت برای شخص دیگری قابل رزرو نیست.
+</div>
+
+<button class="mainbtn" id="submitBtn" onclick="submitBooking()">ثبت درخواست رزرو</button>
+</section>
+
+<section class="card">
+<div class="title">💬 ارتباط با پشتیبانی</div>
+<a class="support" href="https://rubika.ir/Malek__89" target="_blank">
+ارتباط با پشتیبانی<br>@Malek__89
+</a>
+</section>
+
+<footer>سیستم رزرو تبلیغات</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.45.4/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = "https://umdjtsbvecdyzmppxhzb.supabase.co";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_KEY_HERE"; // Settings > API > anon public key
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const daysEl=document.getElementById("days");
+const weekNoticeEl=document.getElementById("weekNotice");
+let selectedDate=null;
+let dayStatusMap={};
+let currentWeekOffset=0;
+
+function formatDate(d){
+  return new Intl.DateTimeFormat("fa-IR",{weekday:"long",day:"numeric",month:"long"}).format(d);
+}
+function isoDate(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(t._h);
+  t._h=setTimeout(()=>t.classList.remove("show"),2600);
+}
+
+async function fetchWeek(weekOffset){
+  const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()+weekOffset*7);
+  const end=new Date(start);end.setDate(end.getDate()+6);
+  const {data,error}=await sb
+    .from("booking_status")
+    .select("date,status")
+    .gte("date",isoDate(start))
+    .lte("date",isoDate(end));
+  const map={};
+  if(!error && data){
+    data.forEach(r=>{map[r.date]=r.status;});
+  }else if(error){
+    console.error(error);
+  }
+  return map;
+}
+
+function weekIsFullyBooked(map,weekOffset){
+  for(let i=0;i<7;i++){
+    const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+weekOffset*7+i);
+    if(!map[isoDate(d)])return false; // یعنی این روز آزاده
+  }
+  return true;
+}
+
+async function loadStatus(){
+  let map=await fetchWeek(0);
+  let offset=0;
+  if(weekIsFullyBooked(map,0)){
+    offset=1;
+    map=await fetchWeek(1);
+  }
+  dayStatusMap=map;
+  currentWeekOffset=offset;
+  weekNoticeEl.style.display=offset===1?"block":"none";
+  renderDays();
+}
+
+function renderDays(){
+  daysEl.innerHTML="";
+  for(let i=0;i<7;i++){
+    const d=new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate()+currentWeekOffset*7+i);
+    const key=isoDate(d);
+    const status=dayStatusMap[key]||"free";
+
+    const el=document.createElement("div");
+    el.className="day";
+    if(status!=="free")el.classList.add("disabled");
+
+    const label=currentWeekOffset===0
+      ?(i===0?"امروز":i===1?"فردا":formatDate(d))
+      :formatDate(d);
+    const badge=status==="free"
+      ?'<span class="badge free">آزاد</span>'
+      :status==="pending"
+      ?'<span class="badge waiting">● در انتظار تأیید</span>'
+      :'<span class="badge booked">● رزرو شده</span>';
+
+    el.innerHTML='<div><div class="dayname">'+label+'</div><div class="date">'+key+'</div></div>'+badge;
+
+    if(status==="free"){
+      el.onclick=()=>selectDay(el,key,label);
+    }
+    daysEl.appendChild(el);
+  }
+}
+
+function selectDay(el,date,label){
+  document.querySelectorAll(".day").forEach(x=>x.classList.remove("selected"));
+  el.classList.add("selected");
+  selectedDate=date;
+  const box=document.getElementById("selectedInfo");
+  box.style.display="block";
+  const weekTag=currentWeekOffset===1?" (هفته بعد)":"";
+  box.textContent="✅ نوبت انتخاب‌شده: "+label+weekTag+" — "+date;
+}
+
+function copyText(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>toast("کپی شد ✅"));
+  }else{
+    toast(text);
+  }
+}
+
+async function submitBooking(){
+  if(!selectedDate){toast("لطفاً ابتدا یک روز آزاد را انتخاب کنید.");return;}
+  const name=document.getElementById("name").value.trim();
+  const rubika=document.getElementById("rubika").value.trim();
+  const payment=document.getElementById("payment").value;
+  const file=document.getElementById("receipt").files[0];
+  if(!name){toast("لطفاً نام را وارد کنید.");return;}
+  if(!rubika){toast("لطفاً آیدی روبیکا را وارد کنید.");return;}
+  if(!file){toast("لطفاً تصویر رسید را انتخاب کنید.");return;}
+
+  const btn=document.getElementById("submitBtn");
+  btn.disabled=true;btn.textContent="در حال ارسال...";
+
+  try{
+    const ext=file.name.split(".").pop();
+    const path=selectedDate+"-"+Date.now()+"."+ext;
+    const up=await sb.storage.from("receipts").upload(path,file,{upsert:false});
+    if(up.error)throw up.error;
+    const {data:pub}=sb.storage.from("receipts").getPublicUrl(path);
+
+    const ins=await sb.from("bookings").insert({
+      date:selectedDate,
+      name,
+      rubika_id:rubika,
+      payment_method:payment,
+      receipt_url:pub.publicUrl,
+      status:"pending"
+    });
+    if(ins.error)throw ins.error;
+
+    toast("درخواست شما ثبت شد ✅ منتظر تأیید مدیریت بمانید.");
+    document.getElementById("name").value="";
+    document.getElementById("rubika").value="";
+    document.getElementById("receipt").value="";
+    document.getElementById("selectedInfo").style.display="none";
+    selectedDate=null;
+    await loadStatus();
+  }catch(e){
+    console.error(e);
+    toast("خطا در ثبت درخواست. دوباره تلاش کنید.");
+  }finally{
+    btn.disabled=false;btn.textContent="ثبت درخواست رزرو";
+  }
+}
+
+loadStatus();
+</script>
+</body>
+</html>
