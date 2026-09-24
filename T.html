@@ -254,8 +254,28 @@ function copyText(text){
   }
 }
 
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function getDeviceSubmitCount(){
+  try{
+    const raw=JSON.parse(localStorage.getItem("adBookingCount")||"{}");
+    return raw.date===todayKey()?(raw.count||0):0;
+  }catch(_){return 0;}
+}
+function bumpDeviceSubmitCount(){
+  try{
+    localStorage.setItem("adBookingCount",JSON.stringify({date:todayKey(),count:getDeviceSubmitCount()+1}));
+  }catch(_){}
+}
+
 async function submitBooking(){
   if(!selectedDate){toast("لطفاً ابتدا یک روز آزاد را انتخاب کنید.");return;}
+  if(getDeviceSubmitCount()>=3){
+    toast("شما امروز از این دستگاه به حداکثر تعداد درخواست (۳ مورد) رسیده‌اید.");
+    return;
+  }
   const name=document.getElementById("name").value.trim();
   const rubika=document.getElementById("rubika").value.trim();
   const payment=document.getElementById("payment").value;
@@ -284,6 +304,7 @@ async function submitBooking(){
     });
     if(ins.error)throw ins.error;
 
+    bumpDeviceSubmitCount();
     toast("درخواست شما ثبت شد ✅ منتظر تأیید مدیریت بمانید.");
     document.getElementById("name").value="";
     document.getElementById("rubika").value="";
