@@ -121,6 +121,7 @@ footer{text-align:center;color:#666;font-size:11px;padding:5px 0 25px}
 </div>
 
 <button class="mainbtn" id="submitBtn" onclick="submitBooking()">ثبت درخواست رزرو</button>
+<div id="debugErr" style="display:none;margin-top:10px;background:#2a1010;border:1px solid #641d1d;border-radius:12px;padding:12px;font-size:11px;color:#ff9b9b;direction:ltr;text-align:left;word-break:break-all;user-select:all"></div>
 </section>
 
 <section class="card">
@@ -292,12 +293,23 @@ async function submitBooking(){
     await loadStatus();
   }catch(e){
     console.error(e);
+    const dbg=document.getElementById("debugErr");
     if(e.message&&e.message.includes("BANNED")){
       toast("امکان ثبت درخواست برای این آیدی وجود ندارد.");
-    }else if(e.message&&e.message.includes("RATE_LIMIT")){
-      toast("شما اخیراً یک درخواست ثبت کرده‌اید. کمی صبر کنید و دوباره تلاش کنید.");
+      dbg.style.display="none";
+    }else if(e.message&&e.message.includes("DAILY_LIMIT")){
+      toast("شما امروز به حداکثر تعداد درخواست (۳ مورد) رسیده‌اید. فردا دوباره تلاش کنید.");
+      dbg.style.display="none";
+    }else if(e.message&&e.message.includes("FULL")){
+      toast("این روز رزرو شد. لطفاً روز دیگری انتخاب کنید.");
+      dbg.style.display="none";
+      await loadStatus();
     }else{
-      toast("خطا در ثبت درخواست. دوباره تلاش کنید.");
+      toast("خطا در ثبت درخواست. متن خطا پایین همین باکس هست، برای مشتی بفرست.");
+      let msg="";
+      try{ msg=JSON.stringify(e,Object.getOwnPropertyNames(e)); }catch(_){ msg=String(e); }
+      dbg.textContent=(e.message||"")+" | "+(e.code||"")+" | "+(e.details||"")+" | "+(e.hint||"")+" | raw: "+msg;
+      dbg.style.display="block";
     }
   }finally{
     btn.disabled=false;btn.textContent="ثبت درخواست رزرو";
