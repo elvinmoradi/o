@@ -292,7 +292,13 @@ async function submitBooking(){
     await loadStatus();
   }catch(e){
     console.error(e);
-    toast("خطا در ثبت درخواست. دوباره تلاش کنید.");
+    if(e.message&&e.message.includes("BANNED")){
+      toast("امکان ثبت درخواست برای این آیدی وجود ندارد.");
+    }else if(e.message&&e.message.includes("RATE_LIMIT")){
+      toast("شما اخیراً یک درخواست ثبت کرده‌اید. کمی صبر کنید و دوباره تلاش کنید.");
+    }else{
+      toast("خطا در ثبت درخواست. دوباره تلاش کنید.");
+    }
   }finally{
     btn.disabled=false;btn.textContent="ثبت درخواست رزرو";
   }
