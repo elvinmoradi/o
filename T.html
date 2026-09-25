@@ -54,6 +54,7 @@ footer{text-align:center;color:#666;font-size:11px;padding:5px 0 25px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 @keyframes shimmer{100%{transform:translateX(100%)}}
 @media(max-width:500px){.hero h1{font-size:24px}.card{padding:15px}.day{padding:12px}}
+.hp-field{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
@@ -114,6 +115,9 @@ footer{text-align:center;color:#666;font-size:11px;padding:5px 0 25px}
 <label>تصویر رسید پرداخت</label>
 <input id="receipt" type="file" accept="image/jpeg,image/png,image/webp">
 
+<!-- Honeypot: فیلد مخفی که فقط ربات‌ها پرش می‌کنن -->
+<input class="hp-field" type="text" id="hp_field" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+
 <div class="notice">
 ⚠️ پس از ثبت درخواست، روز انتخابی در وضعیت
 <b style="color:#ffd46b">«در انتظار تأیید»</b>
@@ -152,6 +156,36 @@ const weekNoticeEl=document.getElementById("weekNotice");
 let selectedDate=null;
 let dayStatusMap={};
 let currentWeekOffset=0;
+
+function getDeviceId(){
+  let id=localStorage.getItem("deviceId");
+  if(!id){
+    id=(crypto.randomUUID?crypto.randomUUID():"dev-"+Date.now()+"-"+Math.random().toString(36).slice(2));
+    localStorage.setItem("deviceId",id);
+  }
+  return id;
+}
+const DEVICE_ID=getDeviceId();
+const PAGE_LOADED_AT=Date.now();
+
+async function checkDeviceBanned(){
+  const {data,error}=await sb.from("banned_devices").select("device_id").eq("device_id",DEVICE_ID).maybeSingle();
+  if(error){console.error(error);return false;}
+  return !!data;
+}
+
+async function initSite(){
+  const banned=await checkDeviceBanned();
+  if(banned){
+    document.body.innerHTML='<div style="max-width:500px;margin:80px auto;text-align:center;padding:20px;color:#ff9b9b;font-family:inherit">'+
+      '<div style="font-size:40px;margin-bottom:14px">🚫</div>'+
+      '<div style="font-size:16px;font-weight:bold;margin-bottom:8px">دسترسی شما به این سایت مسدود شده است</div>'+
+      '<div style="font-size:13px;color:#999">برای پیگیری با پشتیبانی در ارتباط باشید.</div>'+
+      '</div>';
+    return;
+  }
+  loadStatus();
+}
 
 function formatDate(d){
   return new Intl.DateTimeFormat("fa-IR",{weekday:"long",day:"numeric",month:"long"}).format(d);
@@ -276,6 +310,17 @@ async function submitBooking(){
     toast("شما امروز از این دستگاه به حداکثر تعداد درخواست (۳ مورد) رسیده‌اید.");
     return;
   }
+
+  // Honeypot: اگه این فیلد مخفی پر شده باشه یعنی رباته
+  const hp=document.getElementById("hp_field").value;
+  if(hp){toast("خطا در ثبت درخواست.");return;}
+
+  // چک زمانی: اگه فرم خیلی سریع (زیر ۳ ثانیه) پر و ارسال بشه، احتمال زیاد رباته
+  if(Date.now()-PAGE_LOADED_AT<3000){
+    toast("لطفاً چند ثانیه صبر کنید و دوباره تلاش کنید.");
+    return;
+  }
+
   const name=document.getElementById("name").value.trim();
   const rubika=document.getElementById("rubika").value.trim();
   const payment=document.getElementById("payment").value;
@@ -283,6 +328,7 @@ async function submitBooking(){
   if(!name){toast("لطفاً نام را وارد کنید.");return;}
   if(!rubika){toast("لطفاً آیدی روبیکا را وارد کنید.");return;}
   if(!file){toast("لطفاً تصویر رسید را انتخاب کنید.");return;}
+  if(!file.type||!file.type.startsWith("image/")){toast("فقط ارسال فایل تصویر (عکس) مجاز است.");return;}
 
   const btn=document.getElementById("submitBtn");
   btn.disabled=true;btn.textContent="در حال ارسال...";
@@ -290,7 +336,7 @@ async function submitBooking(){
   try{
     const ext=file.name.split(".").pop();
     const path=selectedDate+"-"+Date.now()+"."+ext;
-    const up=await sb.storage.from("receipts").upload(path,file,{upsert:false});
+    const up=await sb.storage.from("receipts").upload(path,file,{upsert:false,contentType:file.type});
     if(up.error)throw up.error;
     const {data:pub}=sb.storage.from("receipts").getPublicUrl(path);
 
@@ -300,6 +346,7 @@ async function submitBooking(){
       rubika_id:rubika,
       payment_method:payment,
       receipt_url:pub.publicUrl,
+      device_id:DEVICE_ID,
       status:"pending"
     });
     if(ins.error)throw ins.error;
@@ -337,7 +384,7 @@ async function submitBooking(){
   }
 }
 
-loadStatus();
+initSite();
 </script>
 </body>
 </html>
