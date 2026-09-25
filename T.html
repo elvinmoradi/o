@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>رزرو تبلیغات</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,7 +54,76 @@ footer{text-align:center;color:#666;font-size:11px;padding:5px 0 25px}
 @keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 @keyframes shimmer{100%{transform:translateX(100%)}}
-@media(max-width:500px){.hero h1{font-size:24px}.card{padding:15px}.day{padding:12px}}
+
+/* ===== Responsive Upgrade ===== */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+.wrap{width:100%;max-width:720px;margin-left:auto;margin-right:auto;padding:clamp(10px,2.5vw,24px)}
+.wrap,.hero,.card,.days,.day,input,select,button,a{max-width:100%}
+img,video,iframe{max-width:100%;height:auto}
+.hero{padding:clamp(22px,4vw,34px) clamp(15px,4vw,28px)}
+.card{padding:clamp(14px,3vw,22px)}
+.hero h1{font-size:clamp(23px,5vw,31px);line-height:1.45}
+.hero p{font-size:clamp(12px,2.4vw,14px)}
+.title{font-size:clamp(16px,3.5vw,19px)}
+.info,label,input,select,.mainbtn,.support{font-size:clamp(12px,2.6vw,14px)}
+input,select{min-height:48px}
+.mainbtn,.support{min-height:50px}
+.code{overflow-wrap:anywhere}
+
+/* Tablet */
+@media (min-width:601px){
+  .wrap{width:min(100% - 30px,760px);max-width:760px}
+  .card{border-radius:22px}
+  .days{gap:10px}
+  .day{min-height:64px}
+}
+
+/* Mobile */
+@media (max-width:600px){
+  html,body{width:100%;min-width:0}
+  .wrap{display:block;width:100%;max-width:none;margin:0;padding:10px}
+  body{background-attachment:scroll}
+  .wrap{width:100%;padding:10px}
+  .hero{border-radius:20px;margin-bottom:12px}
+  .card{border-radius:18px;margin-bottom:12px}
+  .price{padding:13px}
+  .day{
+    min-height:58px;
+    padding:12px;
+    align-items:center;
+  }
+  .dayname{font-size:13px;line-height:1.5}
+  .date{font-size:10px}
+  .badge{font-size:10px;padding:6px 8px}
+  .notice,.weekNotice{font-size:11px}
+  .copy{min-height:44px}
+  .toast{bottom:max(14px,env(safe-area-inset-bottom));max-width:calc(100% - 24px)}
+}
+
+/* Very small phones */
+@media (max-width:380px){
+  .wrap{padding:7px}
+  .hero{padding:19px 12px}
+  .card{padding:12px}
+  .title{gap:6px;margin-bottom:11px}
+  .day{gap:6px;padding:10px}
+  .badge{font-size:9px;padding:5px 7px}
+  .price strong{font-size:16px}
+  input,select{padding:12px;font-size:13px}
+}
+
+/* Landscape phones */
+@media (max-height:500px) and (orientation:landscape){
+  .hero{padding:16px}
+  .card{padding:13px}
+  .toast{bottom:8px}
+}
+
+/* Accessibility / touch */
+button,a,input,select{touch-action:manipulation}
+button,a{ -webkit-tap-highlight-color:transparent }
+input,select{font-size:16px} /* prevents iOS zoom */
+
 .hp-field{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 </style>
 </head>
